@@ -1,0 +1,61 @@
+JSON BODY PARSER
+
+1) Inflate :- If the data sent by server is compressed, it sends an header called Content-Encoding. If set to true, the deflated or compressed body will be decompressed and further parsed. If set to false , the deflated data will be rejected.
+
+-> Default Value :- True
+
+-> read :- https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Encoding
+
+
+
+
+2) Limit :- This is not an http native header or feature! In this option, the user specify the maximum size of the body it's server will accept. The Body Parser middleware manually calculate the size of body sent by the client. If it exceeds given value, the request is rejected and the body is not parsed.
+
+-> Default :- 100kb
+
+-> It uses bytes library :- https://www.npmjs.com/package/bytes
+
+
+3) Reviver :- This is not an http native header or feature! In this option, the user just gives a reviver function as a argument , the JSON BODY PARSER just passes the reviver function to JSON.parse("string", reviver). This is a JS feature the mutate object before they are returned,
+
+-> Default :- null
+
+-> JS feature :- https://chatgpt.com/share/6723995c-3090-800f-92bc-32c469227416
+
+-> MDN :- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Example.3A_Using_the_reviver_parameter
+
+
+4) Strict :-  This is not an http native header or feature! In this option the only type of body allowed body parser is Object. Internally it is using typeof method of JS to do it.
+
+-> default true
+
+
+5) Type :-  This is not an http native header or feature! The type option is used to determine what media type the middleware will parse. This option can be a string, array of strings, or a function. If not a function, type option is passed directly to the type-is library and this can be an extension name (like json), a mime type (like application/json), or a mime type with a wildcard (like */* or */json). If a function, the type option is called as fn(req) and the request is parsed if it returns a truthy value. Defaults to application/json.
+
+-> default :- application/json
+
+-> docs :- https://www.npmjs.com/package/type-is?activeTab=readme
+
+
+6) Verify :- It is simply a function that runs before data is parsed, you get verify(req, res, buf, encoding) 4 arguments. Possible use check buffer size , if zero throw error. Of do anything you like from the raw data. 
+
+-> default null;
+
+->  
+// Middleware to handle JSON body with verification
+app.use(bodyParser.json({
+    verify: (req, res, buf, encoding) => {
+        // Check if the body is empty
+        if (buf.length === 0) {
+            throw new Error('Request body cannot be empty');
+        }
+        
+        // Optional: Check if body size is too large (example: more than 1MB)
+        if (buf.length > 1 * 1024 * 1024) { // 1MB
+            throw new Error('Request body is too large');
+        }
+        
+        // Optional: Perform any additional validation or logging on `buf`
+        console.log(`Raw body (encoding: ${encoding}):`, buf.toString(encoding));
+    }
+}));
