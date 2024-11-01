@@ -51,7 +51,8 @@ const jsonBodyParser = (request, response, callback, inflate = true, maxSize = '
             // Check for deflate (compressed) data
             if (inflate && request.headers['content-encoding'] === 'deflate') {
                 // Inflate the compressed data
-                rawData = zlib.inflateSync(rawData);
+                rawData = zlib.inflateSync(rawData); //only supports DEFLATE algorithm
+               
             } else if (!inflate && request.headers['content-encoding'] === 'deflate') {
                 response.statusCode = 415; // Unsupported Media Type
                 response.end(JSON.stringify({ error: 'Deflated bodies are rejected' }));
